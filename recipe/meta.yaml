@@ -1,0 +1,41 @@
+{% set version = "1.48.0" %}
+
+package:
+  name: rust-nightly
+  version: {{ version }}
+
+source:
+  url: https://static.rust-lang.org/dist/2020-08-29/rust-nightly-x86_64-unknown-linux-gnu.tar.gz  # [linux and x86_64]
+  url: https://static.rust-lang.org/dist/2020-08-29/rust-nightly-powerpc64le-unknown-linux-gnu.tar.gz  # [ppc64le]
+
+build:
+  number: 1
+  # the distributed binaries are already relocatable
+  binary_relocation: False
+
+requirements:
+  run:
+    - {{ compiler('c') }}  # [linux] -- rustc needs a toolchain to link executables on Linux
+
+test:
+  files:
+    - forge_test.sh
+  commands:
+    - time bash ./forge_test.sh  # [not win]
+    - rustc -V | grep -q {{ version }}-nightly # [(linux and x86_64) or ppc64le]
+
+about:
+  home: https://www.rust-lang.org
+  license: MIT
+  license_file:
+    - LICENSE-APACHE
+    - LICENSE-MIT
+  summary: |
+    Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety.
+    This package provides the compiler (rustc) and the documentation utilities rustdoc.
+  dev_url: https://doc.rust-lang.org/std/
+  doc_url: https://www.rust-lang.org/en-US/documentation.html
+
+extra:
+  recipe-maintainers:
+    - open-ce/open-ce-dev-team
