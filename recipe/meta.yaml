@@ -19,9 +19,9 @@ requirements:
 
 test:
   files:
-    - forge_test.sh
+    - run_test.sh
   commands:
-    - time bash ./forge_test.sh  # [not win]
+    - time bash ./run_test.sh  # [not win]
     - rustc -V | grep -q {{ version }}-nightly # [(linux and x86_64) or ppc64le]
 
 about:
