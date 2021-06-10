@@ -9,14 +9,16 @@ source:
   url: https://static.rust-lang.org/dist/2020-11-24/rust-nightly-powerpc64le-unknown-linux-gnu.tar.gz  # [ppc64le]
 
 build:
-  number: 2
+  number: 3
   # the distributed binaries are already relocatable
   binary_relocation: False
 
 requirements:
   run:
     - {{ compiler('c') }}  # [linux] -- rustc needs a toolchain to link executables on Linux
-
+    # Use pins to control cos6/cos7 match
+    - libgcc-ng  {{ libgcc }}
+    - libstdcxx-ng  {{ libstdcxx }}
 test:
   files:
     - run_test.sh
