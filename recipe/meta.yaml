@@ -12,9 +12,7 @@ build:
   number: 3
   # the distributed binaries are already relocatable
   binary_relocation: False
-  ignore_run_exports:
-    - libgcc-ng
-    - libstdcxx-ng
+
 requirements:
   run:
     - {{ compiler('c') }}  # [linux] -- rustc needs a toolchain to link executables on Linux
