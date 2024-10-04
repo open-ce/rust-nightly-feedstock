@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # *****************************************************************
-# (C) Copyright IBM Corp. 2020, 2021. All Rights Reserved.
+# (C) Copyright IBM Corp. 2020, 2024. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # *****************************************************************
+#!/bin/bash
+
 set -ex
 
-./install.sh --prefix=$PREFIX
+# windows shell doesn't start here
+cd $SRC_DIR
 
-if [ "$c_compiler" = gcc ] ; then
-  mkdir -p $PREFIX/etc/conda/activate.d $PREFIX/etc/conda/deactivate.d
-  cp $RECIPE_DIR/../scripts/rust_activate.sh $PREFIX/etc/conda/activate.d
-  cp $RECIPE_DIR/../scripts/rust_deactivate.sh $PREFIX/etc/conda/deactivate.d
-fi
+DESTDIR=$PWD/destdir/
+
+# we want to install only a portion of the full installation.
+# To do that, let's use destdir and then use the manifest-rust-std-* file
+# to install the files corresponding to rust-std
+./install.sh --prefix=$PREFIX --destdir=$DESTDIR
+
+# install.log is large because it records full paths for each file.
+# => conda-build is slow to parse ripgrep's output for prefix replacement.
+# => replace path records beforehand:
+install_log="${DESTDIR}${PREFIX}/lib/rustlib/install.log"
+sed \
+  -e "s|${PREFIX}|/prefix|g" \
+  -e "s|${DESTDIR}|/destdir|g" \
+  -e "s|${PWD}|/source|g" \
+  -i.bak "${install_log}"
+rm "${install_log}.bak"

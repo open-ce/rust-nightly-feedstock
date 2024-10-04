@@ -1,12 +1,17 @@
-{% set version = "1.53.0" %}
+{% set version = "1.82.0" %}
+{% set year = "2024" %}
+{% set month = "08" %}
+{% set day = "26" %}
 
 package:
   name: rust-nightly
   version: {{ version }}
 
 source:
-  url: https://static.rust-lang.org/dist/2021-04-01/rust-nightly-x86_64-unknown-linux-gnu.tar.gz  # [linux and x86_64]
-  url: https://static.rust-lang.org/dist/2021-04-01/rust-nightly-powerpc64le-unknown-linux-gnu.tar.gz  # [ppc64le]
+  - url: https://static.rust-lang.org/dist/{{ year }}-{{ month }}-{{ day }}/rust-nightly-x86_64-unknown-linux-gnu.tar.gz  # [linux and x86_64]
+    sha256: bb601cbc057f704d9e028a4c0fab1430d4614b9f83bb73b0013ad2c347d751d7 # [linux and x86_64]
+  - url: https://static.rust-lang.org/dist/{{ year }}-{{ month }}-{{ day }}/rust-nightly-powerpc64le-unknown-linux-gnu.tar.gz  # [ppc64le]
+    sha256: e0921ee9c2c3433b11079c91177ae3dcaf15139955938ae3c4422c55c99aa69b # [ppc64le]
 
 build:
   number: 1
@@ -14,15 +19,48 @@ build:
   binary_relocation: False
 
 requirements:
-  run:
-    - {{ compiler('c') }}  # [linux] -- rustc needs a toolchain to link executables on Linux
+  build:
+    - posix  # [build_platform == "win-64"]
+  host:
 
-test:
-  files:
-    - run_test.sh
-  commands:
-    - time bash ./run_test.sh  # [not win]
-    - rustc -V | grep -q {{ version }}-nightly # [(linux and x86_64) or ppc64le]
+outputs:
+  - name: rust-nightly
+    script: install-rust.sh  # [unix]
+    script: install-rust.bat  # [win]
+    build:
+      # the distributed binaries are already relocatable
+      binary_relocation: false
+      missing_dso_whitelist:   # [linux]
+        - /lib64/librt.so.1  # [linux]
+        - /lib64/libdl.so.2  # [linux]
+        - /lib64/libpthread.so.0  # [linux]
+        - /lib64/libm.so.6  # [linux]
+        - /lib64/libc.so.6  # [linux]
+        - /lib64/ld-linux-x86-64.so.2  # [linux]
+        # Added as run deps: libgcc-ng (via compiler strong run_exports), zlib
+        # - /lib64/libgcc_s.so.1  # [linux]
+        # - /lib64/libz.so.1  # [linux]
+    requirements:
+      build:
+        - posix  # [build_platform == "win-64"]
+      host:
+        - {{ compiler('c') }}  # [linux] -- rustc needs a toolchain to link executables
+        # zlib is linked by **/lib/libLLVM-*-rust-*.so
+        - zlib  # [linux]
+      run:
+        - gcc_impl_{{ target_platform }}  # [linux]
+    test:
+      requires:
+        - posix  # [build_platform == "win-64"]
+      commands:
+        - rustc --help
+        - rustdoc --help
+        - cargo --help
+        - rustc --version
+        - rustc --version | grep "rustc {{ '.'.join(version.split('.')[:3]) }}"  # [unix]
+        - cargo --config registries.crates-io.protocol=\"sparse\" install --force xsv
+        - echo {{ rust_arch }}
+        - if exist %LIBRARY_PREFIX%\share\doc\rust\html\sysroot exit 1  # [win]
 
 about:
   home: https://www.rust-lang.org
