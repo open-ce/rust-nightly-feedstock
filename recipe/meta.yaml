@@ -16,7 +16,7 @@ source:
     sha256: 3cff7a3f4ae9a04501b5556c73fdcc500c3b43c985043217b2cc8bfacf899d3b # [s390x]
 
 build:
-  number: 1
+  number: 2
   # the distributed binaries are already relocatable
   binary_relocation: False
 
