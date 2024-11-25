@@ -19,6 +19,8 @@
 ARCH=`uname -p`
 if [[ "${ARCH}" == 'ppc64le' ]]; then
     rust_env_arch=POWERPC64LE_UNKNOWN_LINUX_GNU
+elif [[ "${ARCH}" == 's390x' ]]; then
+    rust_env_arch=S390X_UNKNOWN_LINUX_GNU
 else
     rust_env_arch=X86_64_UNKNOWN_LINUX_GNU
 fi

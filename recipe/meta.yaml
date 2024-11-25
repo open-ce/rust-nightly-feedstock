@@ -12,6 +12,8 @@ source:
     sha256: bb601cbc057f704d9e028a4c0fab1430d4614b9f83bb73b0013ad2c347d751d7 # [linux and x86_64]
   - url: https://static.rust-lang.org/dist/{{ year }}-{{ month }}-{{ day }}/rust-nightly-powerpc64le-unknown-linux-gnu.tar.gz  # [ppc64le]
     sha256: e0921ee9c2c3433b11079c91177ae3dcaf15139955938ae3c4422c55c99aa69b # [ppc64le]
+  - url: https://static.rust-lang.org/dist/{{ year }}-{{ month }}-{{ day }}/rust-nightly-s390x-unknown-linux-gnu.tar.gz # [s390x]
+    sha256: 3cff7a3f4ae9a04501b5556c73fdcc500c3b43c985043217b2cc8bfacf899d3b # [s390x]
 
 build:
   number: 1
